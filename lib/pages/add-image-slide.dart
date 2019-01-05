@@ -28,14 +28,13 @@ class AddImageSlidePage extends StatelessWidget {
           DateTime lastModified = await file.lastModified();
           //only add images that are from today
           if( lastModified.isAfter(today) ) {
-            print('Image from today');
             //if check we don't already have an image with that id
-            images.add( asset );
-            /*if( images.firstWhere( (image){
+            if( images.firstWhere( (image){
               return image.id == asset.id ? true : false;
-            } ) == null ){
+            }, orElse: (){return null;} ) == null ){
+              images.add( asset );
               //file with that path doesn't exist
-            }*/
+            }
           } else {
             //we're breaking because we should receive files in date order - the rest in the list should be after today
             break;
