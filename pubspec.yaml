@@ -16,6 +16,7 @@ dependencies:
   photo: ^0.1.8
   camera: ^0.2.6
   path_provider: ^0.4.1
+  scoped_model: 1.0.1
   flutter:
     sdk: flutter
 
