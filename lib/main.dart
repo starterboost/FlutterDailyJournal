@@ -1,12 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'dart:ui' as ui;
-import 'dart:async';
-import 'package:flutter/rendering.dart';
-
-import 'package:flutter/services.dart' show rootBundle;
-
 import './pages/home.dart';
 import './pages/add-slide.dart';
 import './pages/add-text-slide.dart';
