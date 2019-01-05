@@ -81,16 +81,12 @@ class AddImageSlidePage extends StatelessWidget {
                   // horizontal, this would produce 2 rows.
                   crossAxisCount: 3,
                   // Generate 100 Widgets that display their index in the List
-                  children: List.generate( assets.length, (index) {
-                    AssetEntity asset = assets[index];
-                    return Container(
+                  children: List.generate( assets.length + 1, (index) {
+                    if( index == 0 ){
+                      return Container(
                         decoration: BoxDecoration(
-                            color: [
-                          Colors.red,
-                          Colors.blue,
-                          Colors.green,
-                          Colors.yellow
-                        ][index % 4]),
+                            color: Colors.purple
+                            ),
                         child: InkWell(
                             onTap: () {
                               print("Selected child $index");
@@ -98,10 +94,32 @@ class AddImageSlidePage extends StatelessWidget {
                             },
                             child: Center(
                               child: Text(
-                                asset.id,
+                                "Take Photo",
                                 style: Theme.of(context).textTheme.headline,
                               ),
                             )));
+                    }else{
+                      AssetEntity asset = assets[index - 1];
+                      return Container(
+                          decoration: BoxDecoration(
+                              color: [
+                            Colors.red,
+                            Colors.blue,
+                            Colors.green,
+                            Colors.yellow
+                          ][index % 4]),
+                          child: InkWell(
+                              onTap: () {
+                                print("Selected child $index");
+                                Navigator.pushNamed(context, "/add-preview");
+                              },
+                              child: Center(
+                                child: Text(
+                                  asset.id,
+                                  style: Theme.of(context).textTheme.headline,
+                                ),
+                              )));
+                    }
                   }),
                 );
               }
