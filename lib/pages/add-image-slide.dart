@@ -48,6 +48,7 @@ class AddImageSlidePage extends StatelessWidget {
         }
       }
 
+      print("Images ${images.length}");
       return images;
     } else {
       // fail
@@ -78,8 +79,11 @@ class AddImageSlidePage extends StatelessWidget {
               } else if (!snapshot.hasData) {
                 return CircularProgressIndicator();
               } else {
+
                 List<AssetEntity> assets = snapshot.data as List<AssetEntity>;
                 print(assets.length);
+                return Text('Images: ${assets.length}');
+                
                 return GridView.count(
                   // Create a grid with 2 columns. If you change the scrollDirection to
                   // horizontal, this would produce 2 rows.

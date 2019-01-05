@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../elements/btn-cancel.dart';
 
+import '../elements/btn-round-icon.dart';
 class AddPreviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class AddPreviewPage extends StatelessWidget {
           })
         ]),
         body: Text("Preview"),
-        floatingActionButton: IconButton(icon:Icon(Icons.check),onPressed:(){
+        floatingActionButton: RoundIconButton(icon:Icons.check,onPressed:(){
           Navigator.popUntil(context, ( route ){
             return route.isFirst;
           });

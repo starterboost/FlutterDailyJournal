@@ -15,7 +15,7 @@ class JournageApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/',
+      initialRoute: '/add-photo',
       routes: {
         // When we navigate to the "/" route, build the FirstScreen Widget
         '/': (context) => HomePage(),
