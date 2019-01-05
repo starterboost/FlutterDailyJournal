@@ -5,6 +5,7 @@ import './pages/home.dart';
 import './pages/add-slide.dart';
 import './pages/add-text-slide.dart';
 import './pages/add-image-slide.dart';
+import './pages/add-photo-slide.dart';
 import './pages/add-preview.dart';
 
 
@@ -22,6 +23,7 @@ class JournageApp extends StatelessWidget {
         '/add-text-slide': (context) => AddTextSlidePage(),
         '/add-text-color-slide': (context) => AddTextColorSlidePage(),
         '/add-image-slide': (context) => AddImageSlidePage(),
+        '/add-photo': (context) => AddPhotoSlidePage(),
         '/add-preview': (context) => AddPreviewPage(),
       }
     );
