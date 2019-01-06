@@ -30,7 +30,7 @@ class _Transition1State extends State<Transition1> with SingleTickerProviderStat
   @override
   void initState(){
     controller = AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
+        duration: const Duration(milliseconds: 1000), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller);
     controller.forward();
     controller.addStatusListener(( AnimationStatus status ){
@@ -126,7 +126,7 @@ class ImageEffectPainter extends CustomPainter{
     ..color = Colors.red;
 
     int numStepsX = 10;
-    int numStepsY = 10;
+    int numStepsY = 15;
     
     double width = image1.width.toDouble();
     double height = image1.height.toDouble();
@@ -141,9 +141,18 @@ class ImageEffectPainter extends CustomPainter{
     canvas.saveLayer(Rect.fromLTRB(0.0,0.0,size.width,size.height), Paint());
     for( int x = 0; x < numStepsX; x++ ){
       for( int y = 0; y < numStepsY; y++ ){
-        canvas.drawCircle(
+        /*canvas.drawCircle(
           Offset((x+0.5)*targetSizeX,(y+0.5)*targetSizeY),
           mix * targetSizeX,
+          paintCircle
+        );*/
+        canvas.drawRect(
+          Rect.fromLTWH(
+            (x+0.5-mix*0.5)*targetSizeX,
+            (y+0.5-mix*0.5)*targetSizeY,
+            mix*targetSizeX,
+            mix*targetSizeY,
+          ),
           paintCircle
         );
       }

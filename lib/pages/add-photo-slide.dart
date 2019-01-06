@@ -31,16 +31,31 @@ class AddPhotoSlidePageState extends State<AddPhotoSlidePage> {
           appBar: new AppBar(
             title: new Text("Take Photo"),
           ),
-          body: ConstrainedBox(
-              constraints: BoxConstraints.expand(),
-              child: hasCapture
-                  ? Container(decoration:BoxDecoration(color:Colors.red), child:Image.file(capture,fit:BoxFit.cover))
-                  : CameraWidget(onCapture: (File file) {
-                      //load this
-                      setState(() {
-                        capture = file;
-                      });
-                    })),
+          body: FutureBuilder(
+            //delay the appearance of the camera as it affects the transition effect
+            future: Future.delayed(Duration(milliseconds: 350),(){
+              return true;
+            }),
+            builder: (context, snapshot) {
+              print("builder: ${snapshot.hasData}");
+              if( !snapshot.hasData ){
+                return Center( child: CircularProgressIndicator() );
+              }else{
+                return ConstrainedBox(
+                    constraints: BoxConstraints.expand(),
+                    child: hasCapture
+                        ? Container(
+                            decoration: BoxDecoration(color: Colors.red),
+                            child: Image.file(capture, fit: BoxFit.cover))
+                        : CameraWidget(onCapture: (File file) {
+                            //load this
+                            setState(() {
+                              capture = file;
+                            });
+                          }));
+              }
+            },
+          ),
           floatingActionButton: hasCapture
               ? Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   RoundIconButton(

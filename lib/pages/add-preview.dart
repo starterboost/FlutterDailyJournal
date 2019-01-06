@@ -41,6 +41,14 @@ class AddPreviewPageState extends State<AddPreviewPage> {
     return null;
   }
 
+  void _onSubmitToModel( {AppModel model} ) async {
+      Uint8List image = await _captureImage();
+      File fileImage = await model.saveImage( image );
+
+      model.getEntryForToday(createIfNull:true).images.add( fileImage.path );
+      model.saveEntryForToday();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<AppModel>(
@@ -75,15 +83,17 @@ class AddPreviewPageState extends State<AddPreviewPage> {
           floatingActionButton: RoundIconButton(
               icon: Icons.check,
               onPressed: () async {
+                //make the call to change the page first
+                Navigator.popUntil(context, (route) {
+                  return route.isFirst;
+                });
+
+                //now start on this task
                 Uint8List image = await _captureImage();
                 File fileImage = await model.saveImage( image );
 
                 model.getEntryForToday(createIfNull:true).images.add( fileImage.path );
                 model.saveEntryForToday();
-
-                Navigator.popUntil(context, (route) {
-                  return route.isFirst;
-                });
               }),
         );
       },

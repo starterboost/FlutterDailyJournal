@@ -50,12 +50,10 @@ class AddTextColorSlidePage extends StatelessWidget {
               });
             })
           ]),
-          body: GridView.count(
-            // Create a grid with 2 columns. If you change the scrollDirection to
-            // horizontal, this would produce 2 rows.
-            crossAxisCount: 3,
-            // Generate 100 Widgets that display their index in the List
-            children: List.generate(100, (index) {
+          body: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
+              itemCount: 100,
+              itemBuilder: (context, index) {
               Color color = [
                 Colors.red,
                 Colors.blue,
@@ -79,7 +77,7 @@ class AddTextColorSlidePage extends StatelessWidget {
                         ),
                       )));
             }),
-          ));
+          );
     });
   }
 }

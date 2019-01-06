@@ -160,7 +160,7 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
               //print("itemBuilder $index");
               if (index == 0) {
                 return Container(
-                    decoration: BoxDecoration(color: Color.fromARGB(255, 200, 200, 200)),
+                    decoration: BoxDecoration(color: Color.fromARGB(255, 200, 200, 200),border: Border.all(color:Colors.white,width:0.5)),
                     child: InkWell(
                         onTap: () {
                           Navigator.pushNamed(context, "/add-photo");
@@ -259,8 +259,8 @@ class __ImageButtonState extends State<_ImageButton> {
         ? Container( width: 10.0, height: 10.0, child: CircularProgressIndicator() )
         : Container(
             decoration: BoxDecoration(
-              color: widget.enableFullAsset ? Colors.red : Colors.blue,
-              border: Border.all(color:Colors.grey,width:0.5),
+              color: Color.fromARGB(255, 200, 200, 200),
+              border: Border.all(color:Colors.white,width:0.5),
             ),
             padding: EdgeInsets.all(5.0),
             child: Image.memory(_imageData, fit: BoxFit.cover));
