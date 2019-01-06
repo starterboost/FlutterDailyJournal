@@ -26,13 +26,10 @@ class _AnimationAppState extends State<AnimationApp> with SingleTickerProviderSt
     controller = AnimationController(
         duration: const Duration(milliseconds: 700), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller);
-
-    // TODO: implement initState
+    //call super before we 
     super.initState();
     //load dependencies
     _loadAssets();
-
-    controller.forward();
   }
 
   void _loadAssets() async {
@@ -151,7 +148,6 @@ class ImageEffectPainter extends CustomPainter{
 
   @override
   bool shouldRepaint(ImageEffectPainter oldDelegate) {
-    // TODO: implement shouldRepaint
     return oldDelegate.image1 != this.image1 || oldDelegate.image2 != this.image2 || oldDelegate.mix != this.mix;
   }
 }

@@ -34,8 +34,8 @@ class _AddSlideButton extends StatelessWidget {
     return InkWell(
       onTap: this.onPressed,
       child: Container(
-        height: 200.0,
-        decoration: BoxDecoration(color:Colors.red),
+        height: 150.0,
+        decoration: BoxDecoration(color:Colors.red,border:Border.all(color:Colors.red[100],width:1.0)),
         child: Center(
           child: Container(
             padding: EdgeInsets.symmetric(horizontal:20.0),

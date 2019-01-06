@@ -81,26 +81,19 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
       //print('StepA');
       for (AssetPathEntity photoGroup in photoGroups) {
         //this is effectively a list of directories/groups/containers of images
-        //print('StepB: ${photoGroup.name}');
+        //only do this on iOS
         if (photoGroup.name == "All Photos") {
-          //print('StepB2');
+          //get the asssets within that directory
           List<AssetEntity> imageList = await photoGroup.assetList;
-          //print('StepC ${imageList.length}');
-          int count = 0;
           for (AssetEntity asset in imageList) {
-            //print('StepD');
             //check if the file is in range
             if (asset.type == AssetType.image) {
               File file = await asset.file;
               if (file != null) {
-                //print('StepE');
-                DateTime lastModified = await file.lastModified();
-                //print("Date: $lastModified $today");
                 //only add images that are from today
+                DateTime lastModified = await file.lastModified();
                 if(lastModified.isAfter(today)) {
                   //if check we don't already have an image with that id
-                  //print('StepG');
-
                   if (images.firstWhere((image) {
                         return image.id == asset.id ? true : false;
                       }, orElse: () {
@@ -116,9 +109,6 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
             }
           }
         }
-        /*
-
-        */
       }
       
     } else {
@@ -129,9 +119,6 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    int numImagesPerRow = 3;
-    double imageSize = width / numImagesPerRow;
     bool isScrolling = _scrollingEnabled == null ? false : true;
     
     //print("Build: ${_images.length}");
@@ -185,8 +172,7 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
                     child: InkWell(
                         onTap: () async {
                           //add the photo
-                          Uint8List data = await asset.thumbDataWithSize( 400, 400);
-                          model.preview = ImageSlide( data: data );
+                          model.preview = AssetEntitySlide( asset: asset );
                           Navigator.pushNamed(context, "/add-preview");
                         },
                         child: _ImageButton(asset: asset, enableFullAsset: !isScrolling)));
@@ -217,14 +203,14 @@ class __ImageButtonState extends State<_ImageButton> {
   }
 
   @override void didUpdateWidget(_ImageButton oldWidget) {
-      // TODO: implement didUpdateWidget
-      super.didUpdateWidget(oldWidget);
       //detect change of the enableFullAsset
       if( oldWidget.enableFullAsset != widget.enableFullAsset ){
         if( widget.enableFullAsset ){
           _loadImageData( size:100 );
         }
       }
+      //did update widget
+      super.didUpdateWidget(oldWidget);
   }
 
   void _loadImageData( {int size = 10} ) async {

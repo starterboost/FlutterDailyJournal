@@ -59,10 +59,11 @@ class _CamerasViewWidgetState extends State<_CamerasViewWidget> {
     return InkWell(
         onTap: () async {
           print('onTap');
-          Directory tempDir = await getTemporaryDirectory();
-          String tempPath = tempDir.path;
-          
-          String pathOutput = "${tempPath}/${DateTime.now().microsecondsSinceEpoch}";
+          Directory refTempDir = await getTemporaryDirectory();
+          String pathDir = refTempDir.path;
+          String name = DateTime.now().microsecondsSinceEpoch.toString();
+
+          String pathOutput = "$pathDir/$name";
           await controller.takePicture( pathOutput );
           //callback to say photo has been taken
           widget.onCapture( File( pathOutput ) );
