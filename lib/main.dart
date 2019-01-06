@@ -11,14 +11,36 @@ import './pages/add-preview.dart';
 import 'package:scoped_model/scoped_model.dart';
 import './model/app-model.dart';
 
-void main() => runApp(new JournageApp());
+import 'package:flutter/services.dart';
 
-class JournageApp extends StatelessWidget {
+void main(){
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+    .then((_) {
+      runApp(new JournageApp());
+  });
+}
+
+class JournageApp extends StatefulWidget {
+  @override
+  JournageAppState createState() {
+    return new JournageAppState();
+  }
+}
+
+class JournageAppState extends State<JournageApp> {
+  AppModel _model;
+
+  @override
+    void initState() {
+      _model = new AppModel();
+      super.initState();
+    }
+
   @override
   Widget build(BuildContext context) {
     return new ScopedModel<AppModel>(
-        model: new AppModel(),
-        child: MaterialApp(initialRoute: '/', routes: {
+        model: _model,
+        child: MaterialApp(debugShowCheckedModeBanner: false,initialRoute: '/add-photo', routes: {
           // When we navigate to the "/" route, build the FirstScreen Widget
           '/': (context) => HomePage(),
           '/add-slide': (context) => AddSlidePage(),

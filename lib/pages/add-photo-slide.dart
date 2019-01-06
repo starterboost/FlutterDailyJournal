@@ -18,6 +18,10 @@ class AddPhotoSlidePage extends StatefulWidget {
 class AddPhotoSlidePageState extends State<AddPhotoSlidePage> {
   File capture;
 
+  /*
+   * VARIOUS BUGS WITH THE CAMERA - WAITING FOR BUG WITH THE ROTATION TO BE FIXED SO THAT WE CAN UPGRADE
+   */
+
   @override
   Widget build(BuildContext context) {
     bool hasCapture = capture == null ? false : true;
@@ -27,14 +31,16 @@ class AddPhotoSlidePageState extends State<AddPhotoSlidePage> {
           appBar: new AppBar(
             title: new Text("Take Photo"),
           ),
-          body: hasCapture
-              ? Image.file(capture)
-              : CameraWidget(onCapture: (File file) {
-                  //load this
-                  setState(() {
-                    capture = file;
-                  });
-                }),
+          body: ConstrainedBox(
+              constraints: BoxConstraints.expand(),
+              child: hasCapture
+                  ? Container(decoration:BoxDecoration(color:Colors.red), child:Image.file(capture,fit:BoxFit.cover))
+                  : CameraWidget(onCapture: (File file) {
+                      //load this
+                      setState(() {
+                        capture = file;
+                      });
+                    })),
           floatingActionButton: hasCapture
               ? Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   RoundIconButton(
@@ -49,7 +55,7 @@ class AddPhotoSlidePageState extends State<AddPhotoSlidePage> {
                       icon: Icons.check,
                       onPressed: () {
                         //go to preview
-                        model.preview = ImageSlide(file:capture);
+                        model.preview = ImageSlide(file: capture);
                         Navigator.pushNamed(context, "/add-preview");
                       })
                 ])

@@ -1,74 +1,87 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import 'dart:ui' as ui;
 import 'dart:async';
-import 'package:flutter/rendering.dart';
 
-import 'package:flutter/services.dart' show rootBundle;
+import 'dart:typed_data';
 
 
-void main() => runApp(new AnimationApp());
+class Transition1 extends StatefulWidget {
+  Transition1({Key key, @required this.image1, @required this.image2}):super(key:key);
+  final Uint8List image1;
+  final Uint8List image2;
 
-class AnimationApp extends StatefulWidget {
-  _AnimationAppState createState() => _AnimationAppState();
+  _Transition1State createState() => _Transition1State();
 }
 
-class _AnimationAppState extends State<AnimationApp> with SingleTickerProviderStateMixin {
-  ui.Image image1;
-  ui.Image image2;
+class _Transition1State extends State<Transition1> with SingleTickerProviderStateMixin {
 
   AnimationController controller;
   Animation<double> animation;
 
+  ui.Image _image1;
+  ui.Image _image2;
+  Uint8List image1;
+  Uint8List image2;
+
   @override
   void initState(){
     controller = AnimationController(
-        duration: const Duration(milliseconds: 700), vsync: this);
+        duration: const Duration(milliseconds: 2000), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller);
+    controller.forward();
+    controller.addStatusListener(( AnimationStatus status ){
+      if( controller.value == 1.0 ){
+        controller.reverse();
+      }else if( controller.value == 0.0 ){
+        controller.forward();
+      }
+    });
+
     //call super before we 
     super.initState();
     //load dependencies
     _loadAssets();
   }
 
-  void _loadAssets() async {
-    image1 = await _loadAssetAsImage( "images/image1.png" );
-    image2 = await _loadAssetAsImage( "images/image2.png" );
+  Future<void> _loadAssets() async {
+    if( image1 != widget.image1 ){
+      image1 = widget.image1;
+      _image1 = await _imageFromMemory( widget.image1 );
+    }
+
+    if( image2 != widget.image2 ){
+      image2 = widget.image2;
+      _image2 = await _imageFromMemory( widget.image2 );
+    }
 
     setState((){});
   }
 
-  Future<ui.Image> _loadAssetAsImage( String key ) async {
-    var data = await rootBundle.load( key );
-    var codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+  @override void didUpdateWidget( Transition1 oldWidget) {
+      //detect change of the enableFullAsset
+      _loadAssets();
+      //did update widget
+      super.didUpdateWidget(oldWidget);
+  }
+
+  Future<ui.Image> _imageFromMemory( Uint8List data ) async {
+    var codec = await ui.instantiateImageCodec(data);
     var frame = await codec.getNextFrame();
     return frame.image;
   }
 
+  @override dispose(){
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-      appBar: new AppBar(
-        title: new Text("Demo"),
-      ),
-      body:Stack(
-       children: [
-         Positioned(
-           top: 0,
-           left: 0,
-           right: 0,
-           bottom: 0,
-           child: image1 != null && image2 != null ? ImageEffectAnimation( animation:animation, image1:image1, image2:image2 ) : Container()
-         )
-       ]
-      ),
-      floatingActionButton: IconButton(icon:Icon(Icons.play_arrow), onPressed: (){
-        controller.reset();
-        controller.forward();
-      },),
-    ));
+    return _image1 != null && _image2 != null ? ImageEffectAnimation( animation:animation, image1:_image1, image2:_image2 ) : Container();
   }
 }
 
@@ -96,8 +109,6 @@ class ImageEffectPainter extends CustomPainter{
   @override
   void paint(Canvas canvas, Size size) {
 
-    print( size );
-
     Paint paintCircle = Paint()
     ..color = Color.fromARGB( (mix * 255.0).toInt(), 255, 0, 0);
 
@@ -111,14 +122,17 @@ class ImageEffectPainter extends CustomPainter{
     int numStepsX = 10;
     int numStepsY = 10;
     
-    double srcSizeX = 500.0 / numStepsX;
-    double srcSizeY = 500.0 / numStepsY;
-    double targetSizeX = size.width / numStepsX;
-    double targetSizeY = size.width / numStepsY;
+    double width = image1.width.toDouble();
+    double height = image1.height.toDouble();
 
-    canvas.drawImageRect(image1, Rect.fromLTRB(0.0,0.0,500.0,500.0), Rect.fromLTRB(0.0,0.0,size.width,size.width), paintImage);
+    double srcSizeX = width / numStepsX;
+    double srcSizeY = height / numStepsY;
+    double targetSizeX = size.width / numStepsX;
+    double targetSizeY = size.height / numStepsY;
+
+    canvas.drawImageRect(image1, Rect.fromLTRB(0.0,0.0,width,height), Rect.fromLTRB(0.0,0.0,size.width,size.height), paintImage);
     
-    canvas.saveLayer(Rect.fromLTRB(0.0,0.0,size.width,size.width), Paint());
+    canvas.saveLayer(Rect.fromLTRB(0.0,0.0,size.width,size.height), Paint());
     for( int x = 0; x < numStepsX; x++ ){
       for( int y = 0; y < numStepsY; y++ ){
         canvas.drawCircle(
@@ -129,21 +143,8 @@ class ImageEffectPainter extends CustomPainter{
       }
     }
 
-    for( int x = 0; x < numStepsX; x++ ){
-      for( int y = 0; y < numStepsY; y++ ){
-        canvas.drawImageRect(image2, 
-        Rect.fromLTWH(x*srcSizeX,y*srcSizeY,mix*srcSizeX,mix*srcSizeY), 
-        Rect.fromLTWH(x*targetSizeX,y*targetSizeY,mix*targetSizeX,mix*targetSizeY), 
-        paintImage);
-        /*
-        canvas.drawCircle(
-          Offset((x+0.5)*targetSizeX,(y+0.5)*targetSizeY),
-          mix * targetSizeX,
-          paintCircle
-        );*/
-      }
-    }
-    
+    canvas.drawImageRect(image2, Rect.fromLTRB(0.0,0.0,width,height), Rect.fromLTRB(0.0,0.0,size.width,size.height), paintImage);
+    canvas.restore();
   }
 
   @override

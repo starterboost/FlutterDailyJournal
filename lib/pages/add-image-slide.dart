@@ -17,6 +17,7 @@ class AddImageSlidePage extends StatefulWidget {
 }
 
 class AddImageSlidePageState extends State<AddImageSlidePage> {
+  bool _isLoading = false;
   List<AssetEntity> _images = [];
   ScrollController _controller;
   Timer _scrollingEnabled;
@@ -68,13 +69,18 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
   }
 
   void _loadImages() async {
+    setState((){
+      _isLoading = true;
+    });
+
     var result = await PhotoManager.requestPermission();
     
     if (result) {
       // success
-      List<AssetPathEntity> photoGroups = await PhotoManager.getAssetPathList();
+      List<AssetPathEntity> photoGroups = await PhotoManager.getAssetPathList(hasAll:false, hasVideo: false);
       List<AssetEntity> images = [];
       DateTime now = DateTime.now();
+      //iOS puts all images in a temp directory which means they are all fresh and the modified date is useless
       DateTime today =
           DateTime.parse("${now.year}-0${now.month}-0${now.day} 00:00:00Z");
 
@@ -82,32 +88,36 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
       for (AssetPathEntity photoGroup in photoGroups) {
         //this is effectively a list of directories/groups/containers of images
         //only do this on iOS
-        if (photoGroup.name == "All Photos") {
-          //get the asssets within that directory
-          List<AssetEntity> imageList = await photoGroup.assetList;
-          for (AssetEntity asset in imageList) {
-            //check if the file is in range
-            if (asset.type == AssetType.image) {
-              File file = await asset.file;
-              if (file != null) {
-                //only add images that are from today
-                DateTime lastModified = await file.lastModified();
-                if(lastModified.isAfter(today)) {
-                  //if check we don't already have an image with that id
-                  if (images.firstWhere((image) {
-                        return image.id == asset.id ? true : false;
-                      }, orElse: () {
-                        return null;
-                      }) ==
-                      null) {
-                    //file with that path doesn't exist
-                    _addImage( asset );
-                  }
+        try{
+          if (photoGroup.name == "All Photos") {
+            //get the asssets within that directory
+            List<AssetEntity> imageList = await photoGroup.assetList;
+            for (AssetEntity asset in imageList) {
+              //check if the file is in range
+              if (asset.type == AssetType.image) {
+                File file = await asset.file;
+                if (file != null) {
+                  //only add images that are from today
+                  DateTime lastModified = await file.lastModified();
+                  if(lastModified.isAfter(today)) {
+                    //if check we don't already have an image with that id
+                    if (images.firstWhere((image) {
+                          return image.id == asset.id ? true : false;
+                        }, orElse: () {
+                          return null;
+                        }) ==
+                        null) {
+                      //file with that path doesn't exist
+                      _addImage( asset );
+                    }
 
+                  }
                 }
               }
             }
           }
+        }catch( err ){
+
         }
       }
       
@@ -115,6 +125,10 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
       // fail
       throw ("Don't have permission to access Photos");
     }
+
+    setState((){
+      _isLoading = false;
+    });
   }
 
   @override
@@ -139,7 +153,7 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
 
           return GridView.builder(
             controller: _controller,
-            itemCount: _images.length + 1,
+            itemCount: _images.length + 1 + (_images.length == 0 && _isLoading ? 1 : 0),
             gridDelegate:
                 SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
             itemBuilder: (context, index) {
@@ -163,6 +177,8 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
                                 )
                               ]),
                         )));
+              } else if( _images.length == 0 && _isLoading && index == 1 ){
+                return Container( width: 10.0, height: 10.0, child: CircularProgressIndicator() );
               } else {
                 AssetEntity asset = _images[index - 1];
                 return Container(

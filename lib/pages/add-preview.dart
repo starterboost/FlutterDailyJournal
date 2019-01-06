@@ -22,19 +22,13 @@ class AddPreviewPageState extends State<AddPreviewPage> {
 
   Future<Uint8List> _captureImage() async {
     try {
-      print("Step1");
       RenderRepaintBoundary boundary =
           _renderKey.currentContext.findRenderObject();
-      print("Step2");
-
+      
       ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      print("Step3");
-
-      print("Image ${image.width} x ${image.height}");
       
       ByteData byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
-      print("Step4");
       
       return byteData.buffer.asUint8List();
     } catch (e) {
