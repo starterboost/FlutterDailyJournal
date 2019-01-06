@@ -36,7 +36,7 @@ class AppModel extends Model {
     _storage = new Storage("journal");
     _storage.init();
 
-    _storageImages = new Storage("journal-images");
+    _storageImages = new Storage("journalimages");
     _storageImages.init();
 
     print("init Model");
@@ -64,10 +64,10 @@ class AppModel extends Model {
     });
   }
 
-  Future<File> saveImage( List<dynamic> data, { String extension = "png"} ){
+  Future<File> saveImage( List<dynamic> data ){
     DateTime dateNow = DateTime.now();
     String name = dateNow.millisecondsSinceEpoch.toString();
-    return _storageImages.writeFileAsBytes("${name}.${extension}", data );
+    return _storageImages.writeFileAsBytes("$name", data );
   }
 
   void addEntry( JournalEntry entry ) {
@@ -142,15 +142,17 @@ class JournalEntry{
     date = DateTime.parse(json['date']),
     images = []
   {
+      print("JournalEntry.fromJson ${json['images'].length}");
       for( var image in json['images'] ){
         if( image is String ){
-          images.add( image );
+          File fileImage = File( image );
+          print("$image ${fileImage.existsSync()}");
+          if( fileImage.existsSync() ){
+            images.add( image );
+          }
         }
-
-        print('Image: ${image}');
       }
   }
-        //images = json['images'] as List<String>;
 
   Map<String, dynamic> toJson() =>
   {
@@ -195,8 +197,14 @@ class Storage {
 
   init() async{
     Directory dir = await localDir;
-
-    dir.create();
+    bool exists = await dir.exists();
+    
+    if( !exists ){
+      print("Creating ${dir.path}");
+      dir.create();
+    }else{
+      print("Exists ${dir.path}");
+    }
   }
 
   Future<String> get localDirPath async {
@@ -248,7 +256,8 @@ class Storage {
   
   Future<File> writeFileAsBytes( String name, List<dynamic> data ) async {
     final file = await getFile(name);
-    return file.writeAsBytes( data );
+    file.writeAsBytes( data );
+    return file;
   }
 
   Future<FileSystemEntity> deleteFile( String name ) async {

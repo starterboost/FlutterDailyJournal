@@ -196,6 +196,6 @@ class _TextSlidePreviewState extends State<_TextSlidePreview> {
         decoration: BoxDecoration(color: widget.model.color),
         child: Center(
             child: Text(widget.model.text,
-                style: TextStyle(fontSize: 30.0, color: Colors.white))));
+                style: TextStyle(fontSize: 60.0, color: Colors.white))));
   }
 }

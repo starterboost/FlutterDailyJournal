@@ -122,7 +122,7 @@ class __TextInputState extends State<_TextInput> {
           cursorWidth: 2.0,
           cursorColor: Colors.white,
           textAlign: TextAlign.center,
-          style: TextStyle(color:Colors.white,fontSize: 20.0),
+          style: TextStyle(color:Colors.white,fontSize: 60.0),
           decoration: InputDecoration(labelStyle:TextStyle(color:Colors.white),border: InputBorder.none, filled: true),
           autofocus: true,
           onEditingComplete: () {
