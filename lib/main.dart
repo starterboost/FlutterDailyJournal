@@ -40,7 +40,7 @@ class JournageAppState extends State<JournageApp> {
   Widget build(BuildContext context) {
     return new ScopedModel<AppModel>(
         model: _model,
-        child: MaterialApp(debugShowCheckedModeBanner: false,initialRoute: '/add-photo', routes: {
+        child: MaterialApp(debugShowCheckedModeBanner: false,initialRoute: '/', routes: {
           // When we navigate to the "/" route, build the FirstScreen Widget
           '/': (context) => HomePage(),
           '/add-slide': (context) => AddSlidePage(),

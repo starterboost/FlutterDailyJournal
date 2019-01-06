@@ -160,20 +160,21 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
               //print("itemBuilder $index");
               if (index == 0) {
                 return Container(
-                    decoration: BoxDecoration(color: Colors.purple),
+                    decoration: BoxDecoration(color: Color.fromARGB(255, 200, 200, 200)),
                     child: InkWell(
                         onTap: () {
                           Navigator.pushNamed(context, "/add-photo");
                         },
                         child: Center(
-                          child: Column(
+                          child:
+                            Column(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.camera_alt),
                                 Text(
                                   "Take Photo",
-                                  style: Theme.of(context).textTheme.headline,
+                                  style: TextStyle(fontSize:14.0),
                                 )
                               ]),
                         )));
@@ -236,6 +237,9 @@ class __ImageButtonState extends State<_ImageButton> {
       //incase dispose has been called
       if (this.mounted) {
         setState(() {});
+        if( widget.enableFullAsset ){
+          _loadImageData( size:100 );
+        }
       } else {
         _imageData = null;
       }

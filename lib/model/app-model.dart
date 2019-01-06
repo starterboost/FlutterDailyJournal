@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'dart:typed_data';
 
 class AppModel extends Model {
+  Future<void> init() async{
+    //load all the images
+  }
+
   List<Uint8List> images = [];
   Slide _preview;
 
@@ -14,6 +18,10 @@ class AppModel extends Model {
     _preview = slide;
     notifyListeners();
   }
+}
+
+class JournalEntry{
+
 }
 
 class Slide{

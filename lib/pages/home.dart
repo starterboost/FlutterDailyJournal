@@ -12,19 +12,24 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScopedModelDescendant<AppModel>(builder: (context, widget, model) {
       return Scaffold(
-          appBar: new AppBar(
-            title: new Text("Home ${model.images.length}"),
-          ),
-          body: model.images.length >= 2
-              ? Container(
-                decoration: BoxDecoration(color:Colors.purple),
-                height: 600,
-                width: 400,
-                child: Transition1(
-                  image1: model.images.elementAt(0),
-                  image2: model.images.elementAt(1))
-              )
-              : Container(),
+          body: SafeArea(
+              child: Stack(children: [
+            model.images.length >= 2
+                ? Container(
+                    constraints: BoxConstraints.expand(),
+                    decoration: BoxDecoration(color: Colors.purple),
+                    child: Transition1(
+                        image1: model.images.elementAt(0),
+                        image2: model.images.elementAt(2)))
+                : Container(),
+            Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: Text("Jan 5",
+                    style: TextStyle(
+                        color: Color.fromARGB(200, 255, 255, 255),
+                        fontSize: 80.0,
+                        fontWeight: FontWeight.bold)))
+          ])),
           floatingActionButton: RoundIconButton(
               icon: Icons.add,
               onPressed: () {

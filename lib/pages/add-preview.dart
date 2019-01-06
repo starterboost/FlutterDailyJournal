@@ -43,7 +43,7 @@ class AddPreviewPageState extends State<AddPreviewPage> {
     return ScopedModelDescendant<AppModel>(
       builder: (context, widget, model) {
         return Scaffold(
-          appBar: new AppBar(title: new Text("Preview"), actions: [
+          /*appBar: new AppBar(title: new Text("Preview"), actions: [
             CancelButton(onPressed: () {
               Navigator.popUntil(context, (route) {
                 if (route.isFirst) {
@@ -53,8 +53,8 @@ class AddPreviewPageState extends State<AddPreviewPage> {
                 }
               });
             })
-          ]),
-          body: RepaintBoundary(
+          ]),*/
+          body: SafeArea(child: RepaintBoundary(
               key: _renderKey,
               child: ScopedModelDescendant<AppModel>(
                   builder: (context, widget, model) {
@@ -68,21 +68,15 @@ class AddPreviewPageState extends State<AddPreviewPage> {
                 }
 
                 return Container();
-              })),
+              }))),
           floatingActionButton: RoundIconButton(
               icon: Icons.check,
               onPressed: () async {
-                print("onPressedA");
                 Uint8List image = await _captureImage();
-                print("onPressedB ${image.length}");
                 model.images.add(image);
-                print("onPressedC");
-                //model.preview = null;
-
                 Navigator.popUntil(context, (route) {
                   return route.isFirst;
                 });
-                print("onPressedD");
               }),
         );
       },

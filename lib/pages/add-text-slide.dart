@@ -121,7 +121,8 @@ class __TextInputState extends State<_TextInput> {
       decoration: BoxDecoration(color: Colors.red),
       child: Center(
         child: TextField(
-          cursorWidth: 0.0,
+          cursorWidth: 2.0,
+          cursorColor: Colors.white,
           textAlign: TextAlign.center,
           style: TextStyle(color:Colors.white,fontSize: 20.0),
           decoration: InputDecoration(labelStyle:TextStyle(color:Colors.white),border: InputBorder.none, filled: true),
