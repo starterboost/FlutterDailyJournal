@@ -32,9 +32,15 @@ class JournageAppState extends State<JournageApp> {
 
   @override
     void initState() {
-      _model = new AppModel();
       super.initState();
+      _initModel();
     }
+
+  Future<void> _initModel() async {
+    _model = new AppModel();
+    _model.init();
+    setState((){});
+  }
 
   @override
   Widget build(BuildContext context) {

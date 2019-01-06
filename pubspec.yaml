@@ -17,6 +17,7 @@ dependencies:
   camera: ^0.2.6
   path_provider: ^0.4.1
   scoped_model: ^1.0.1
+  intl: ^0.15.7
   flutter:
     sdk: flutter
 

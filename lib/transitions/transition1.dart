@@ -4,14 +4,15 @@ import 'package:flutter/rendering.dart';
 
 import 'dart:ui' as ui;
 import 'dart:async';
+import 'dart:io';
 
 import 'dart:typed_data';
 
 
 class Transition1 extends StatefulWidget {
   Transition1({Key key, @required this.image1, @required this.image2}):super(key:key);
-  final Uint8List image1;
-  final Uint8List image2;
+  final String image1;
+  final String image2;
 
   _Transition1State createState() => _Transition1State();
 }
@@ -23,8 +24,8 @@ class _Transition1State extends State<Transition1> with SingleTickerProviderStat
 
   ui.Image _image1;
   ui.Image _image2;
-  Uint8List image1;
-  Uint8List image2;
+  String image1;
+  String image2;
 
   @override
   void initState(){
@@ -49,12 +50,12 @@ class _Transition1State extends State<Transition1> with SingleTickerProviderStat
   Future<void> _loadAssets() async {
     if( image1 != widget.image1 ){
       image1 = widget.image1;
-      _image1 = await _imageFromMemory( widget.image1 );
+      _image1 = await _imageFromFilePath( widget.image1 );
     }
 
     if( image2 != widget.image2 ){
       image2 = widget.image2;
-      _image2 = await _imageFromMemory( widget.image2 );
+      _image2 = await _imageFromFilePath( widget.image2 );
     }
 
     setState((){});
@@ -67,6 +68,12 @@ class _Transition1State extends State<Transition1> with SingleTickerProviderStat
       super.didUpdateWidget(oldWidget);
   }
 
+  Future<ui.Image> _imageFromFilePath( String path ) async {
+    File file = File( path );
+    List<dynamic> data = await file.readAsBytes();
+    return _imageFromMemory( data );
+  }
+  
   Future<ui.Image> _imageFromMemory( Uint8List data ) async {
     var codec = await ui.instantiateImageCodec(data);
     var frame = await codec.getNextFrame();

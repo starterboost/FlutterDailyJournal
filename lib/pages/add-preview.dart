@@ -5,10 +5,12 @@ import 'package:scoped_model/scoped_model.dart';
 
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'dart:io';
 
 import '../elements/btn-round-icon.dart';
 import '../elements/btn-cancel.dart';
 import '../model/app-model.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AddPreviewPage extends StatefulWidget {
   @override
@@ -31,6 +33,7 @@ class AddPreviewPageState extends State<AddPreviewPage> {
           await image.toByteData(format: ui.ImageByteFormat.png);
       
       return byteData.buffer.asUint8List();
+      //write this
     } catch (e) {
       print(e);
     }
@@ -73,7 +76,11 @@ class AddPreviewPageState extends State<AddPreviewPage> {
               icon: Icons.check,
               onPressed: () async {
                 Uint8List image = await _captureImage();
-                model.images.add(image);
+                File fileImage = await model.saveImage( image );
+
+                model.getEntryForToday(createIfNull:true).images.add( fileImage.path );
+                model.saveEntryForToday();
+
                 Navigator.popUntil(context, (route) {
                   return route.isFirst;
                 });
