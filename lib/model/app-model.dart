@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'dart:io';
+import 'dart:typed_data';
 
-class AppInheritedWidget extends InheritedWidget {
-  AppInheritedWidget({Key key, child}) : super(key: key, child: child);
-  
+class AppModel extends Model {
+  Slide _preview;
 
-  static AppInheritedWidget of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(AppInheritedWidget)as AppInheritedWidget);
+  Slide get preview => _preview;
+
+  set preview( Slide slide ){
+    _preview = slide;
+    notifyListeners();
   }
+}
 
-  @override
-  bool updateShouldNotify( AppInheritedWidget oldWidget) {
-    return true;
-  }
+class Slide{
 
-  
+}
+
+class ImageSlide extends Slide{
+  ImageSlide({this.data});
+
+  //final File file;
+  final Uint8List data;
 }

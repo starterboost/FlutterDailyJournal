@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../elements/btn-cancel.dart';
 
 import '../elements/btn-round-icon.dart';
+import 'package:scoped_model/scoped_model.dart';
+import '../model/app-model.dart';
+
 class AddPreviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -18,7 +21,15 @@ class AddPreviewPage extends StatelessWidget {
             });
           })
         ]),
-        body: Text("Preview"),
+        body: ScopedModelDescendant<AppModel>(
+          builder:( context, widget, model ){
+            if( model.preview is ImageSlide ){
+              return _ImageSlidePreview( image: model.preview as ImageSlide );
+            }
+
+            return Container();
+          }
+        ),
         floatingActionButton: RoundIconButton(icon:Icons.check,onPressed:(){
           Navigator.popUntil(context, ( route ){
             return route.isFirst;
@@ -28,28 +39,13 @@ class AddPreviewPage extends StatelessWidget {
   }
 }
 
-class _AddPreviewButton extends StatelessWidget {
-  _AddPreviewButton({Key key, this.text, @required this.onPressed})
+class _ImageSlidePreview extends StatelessWidget {
+  _ImageSlidePreview({Key key, @required this.image})
       : super(key: key);
-  final String text;
-  final VoidCallback onPressed;
+  final ImageSlide image;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      child: Container(
-        height: 200.0,
-        decoration: BoxDecoration(color: Colors.red),
-        child: Center(
-            child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-            Icon(Icons.add),
-            Container(width: 10),
-            Text(this.text)
-          ]),
-        )),
-      ),
-    );
+    return Image.memory( image.data );
   }
 }
