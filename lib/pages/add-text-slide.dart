@@ -23,16 +23,12 @@ class AddTextSlidePage extends StatelessWidget {
                 });
               })
             ]),
-            body: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _TextInput(onSubmit: (text) {
-                    model.preview = new TextSlide(text:text);
-                    Navigator.pushNamed(context, "/add-text-color-slide");
-                  })
-                ]));
+            body: ConstrainedBox(
+                constraints: new BoxConstraints.expand(),
+                child: _TextInput(onSubmit: (text) {
+                  model.preview = new TextSlide(text: text);
+                  Navigator.pushNamed(context, "/add-text-color-slide");
+                })));
       },
     );
   }
@@ -41,52 +37,50 @@ class AddTextSlidePage extends StatelessWidget {
 class AddTextColorSlidePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<AppModel>(
-      builder: (context, widget, model) {
-        return Scaffold(
-        appBar: new AppBar(title: new Text("Pick a Colour"), actions: [
-          CancelButton(onPressed: () {
-            Navigator.popUntil(context, (route) {
-              if (route.isFirst) {
-                return true;
-              } else {
-                return false;
-              }
-            });
-          })
-        ]),
-        body: GridView.count(
-          // Create a grid with 2 columns. If you change the scrollDirection to
-          // horizontal, this would produce 2 rows.
-          crossAxisCount: 3,
-          // Generate 100 Widgets that display their index in the List
-          children: List.generate(100, (index) {
-            Color color = [
-                  Colors.red,
-                  Colors.blue,
-                  Colors.green,
-                  Colors.yellow
-                ][index % 4];
-            return Container(
-                decoration: BoxDecoration(
-                    color: color),
-                child: InkWell(
-                    onTap: () {
-                      print("Selected child $index");
-                      TextSlide slide = model.preview as TextSlide;
-                      slide.color = color;
-                      model.preview = slide;
-                      Navigator.pushNamed(context, "/add-preview");
-                    },
-                    child: Center(
-                      child: Text(
-                        'Item $index',
-                        style: Theme.of(context).textTheme.headline,
-                      ),
-                    )));
-          }),
-        ));
-      });
+    return ScopedModelDescendant<AppModel>(builder: (context, widget, model) {
+      return Scaffold(
+          appBar: new AppBar(title: new Text("Pick a Colour"), actions: [
+            CancelButton(onPressed: () {
+              Navigator.popUntil(context, (route) {
+                if (route.isFirst) {
+                  return true;
+                } else {
+                  return false;
+                }
+              });
+            })
+          ]),
+          body: GridView.count(
+            // Create a grid with 2 columns. If you change the scrollDirection to
+            // horizontal, this would produce 2 rows.
+            crossAxisCount: 3,
+            // Generate 100 Widgets that display their index in the List
+            children: List.generate(100, (index) {
+              Color color = [
+                Colors.red,
+                Colors.blue,
+                Colors.green,
+                Colors.yellow
+              ][index % 4];
+              return Container(
+                  decoration: BoxDecoration(color: color),
+                  child: InkWell(
+                      onTap: () {
+                        print("Selected child $index");
+                        TextSlide slide = model.preview as TextSlide;
+                        slide.color = color;
+                        model.preview = slide;
+                        Navigator.pushNamed(context, "/add-preview");
+                      },
+                      child: Center(
+                        child: Text(
+                          'Item $index',
+                          style: Theme.of(context).textTheme.headline,
+                        ),
+                      )));
+            }),
+          ));
+    });
   }
 }
 
@@ -124,12 +118,19 @@ class __TextInputState extends State<_TextInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: TextField(
-        autofocus: true,
-        onEditingComplete: () {
-          print("complete");
-        },
-        onSubmitted: widget.onSubmit,
+      decoration: BoxDecoration(color: Colors.red),
+      child: Center(
+        child: TextField(
+          cursorWidth: 0.0,
+          textAlign: TextAlign.center,
+          style: TextStyle(color:Colors.white,fontSize: 20.0),
+          decoration: InputDecoration(labelStyle:TextStyle(color:Colors.white),border: InputBorder.none, filled: true),
+          autofocus: true,
+          onEditingComplete: () {
+            print("complete");
+          },
+          onSubmitted: widget.onSubmit,
+        ),
       ),
     );
   }

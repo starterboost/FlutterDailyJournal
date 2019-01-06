@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
           appBar: new AppBar(
             title: new Text("Home ${model.images.length}"),
           ),
-          body: model.images.length >= 3
+          body: model.images.length >= 2
               ? Container(
                 decoration: BoxDecoration(color:Colors.purple),
                 height: 600,
