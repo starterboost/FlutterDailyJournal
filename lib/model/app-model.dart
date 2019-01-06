@@ -35,6 +35,7 @@ class AppModel extends Model {
   Future<void> init() async{
     _storage = new Storage("journal");
     _storage.init();
+
     _storageImages = new Storage("journal-images");
     _storageImages.init();
 
@@ -53,10 +54,12 @@ class AppModel extends Model {
         }
 
         //got to here - all must be fine
+        print('fromJSON: $data');
         addEntry( JournalEntry.fromJson( data ) );
       }catch(err){
+        print('Error opening the file: ${err}');
         //data malformed - delete (for now)
-        _storage.deleteFile( fileName );
+        //_storage.deleteFile( fileName );
       }
     });
   }
@@ -70,6 +73,7 @@ class AppModel extends Model {
   void addEntry( JournalEntry entry ) {
     // First, increment the counter
     _items.add( entry );
+    print('Added entry');
     // Then notify all the listeners.
     notifyListeners();
   }
@@ -134,9 +138,19 @@ class JournalEntry{
   List<String> images;
   final DateTime date;
 
-  JournalEntry.fromJson(Map<String, dynamic> json)
-      : date = DateTime.parse(json['date']),
-        images = json['images'];
+  JournalEntry.fromJson(Map<String, dynamic> json):
+    date = DateTime.parse(json['date']),
+    images = []
+  {
+      for( var image in json['images'] ){
+        if( image is String ){
+          images.add( image );
+        }
+
+        print('Image: ${image}');
+      }
+  }
+        //images = json['images'] as List<String>;
 
   Map<String, dynamic> toJson() =>
   {
@@ -197,6 +211,7 @@ class Storage {
 
   Future<Stream<FileSystemEntity>> listContents() async {
     Directory dir = await localDir;
+    print('listContents ${dir.path}');
     return dir.list(recursive:false,followLinks:false);
   }
 

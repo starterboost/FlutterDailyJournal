@@ -17,10 +17,16 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   PageController _controller;
+  bool _enableAddSlide = true;
 
   @override
     void initState() {
-      _controller = PageController(initialPage:1,viewportFraction:0.8);
+      _controller = PageController(initialPage:0,viewportFraction:0.9);
+      _controller.addListener((){
+        setState((){
+          _enableAddSlide = _controller.page.floor() == 0 ? true : false;
+        });
+      });
       super.initState();
     }
 
@@ -31,9 +37,9 @@ class HomePageState extends State<HomePage> {
           body: SafeArea(
               child:PageView.builder(
                 controller: _controller,
-                itemCount: model.items.length,
+                itemCount: model.items.length * 3,
                 itemBuilder: ( context, index ){
-                  var entry = model.items[index];
+                  var entry = model.items[(index / 3).floor()];
                   return Container(
                     color: Colors.blue,
                     child:  Stack(children: [
@@ -43,7 +49,7 @@ class HomePageState extends State<HomePage> {
                               decoration: BoxDecoration(color: Colors.purple),
                               child: Transition1(
                                   image1: entry.images.elementAt(0),
-                                  image2: entry.images.elementAt(1)))
+                                  image2: entry.images.elementAt(2)))
                           : Container(),
                       Container(
                           padding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -74,12 +80,18 @@ class HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.bold)))
           ])*/
           ),
-          floatingActionButton: RoundIconButton(
-              icon: Icons.add,
-              onPressed: () {
-                //go to the add page
-                Navigator.pushNamed(context, '/add-slide');
-              }));
+          floatingActionButton: AnimatedContainer(
+            transform: Matrix4.identity()..scale( _enableAddSlide ? 1.0 : 0.0 ),
+            duration : Duration(milliseconds: 500),
+            //scale: _enableAddSlide ? 1.0 : 0.0, 
+            child: RoundIconButton(
+                color: Colors.red,
+                icon: Icons.add,
+                onPressed: () {
+                  //go to the add page
+                  Navigator.pushNamed(context, '/add-slide');
+                }))
+          ); 
     });
   }
 }

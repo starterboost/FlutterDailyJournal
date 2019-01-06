@@ -89,7 +89,7 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
         //this is effectively a list of directories/groups/containers of images
         //only do this on iOS
         try{
-          if (photoGroup.name == "All Photos") {
+          if ( true || photoGroup.name == "All Photos" ) {
             //get the asssets within that directory
             List<AssetEntity> imageList = await photoGroup.assetList;
             for (AssetEntity asset in imageList) {
