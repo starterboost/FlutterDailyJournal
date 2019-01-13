@@ -256,7 +256,7 @@ class __ImageButtonState extends State<_ImageButton> {
   @override
   Widget build(BuildContext context) {
     return _imageData == null
-        ? Container( width: 10.0, height: 10.0, child: CircularProgressIndicator() )
+        ? Center( child: CircularProgressIndicator() )
         : Container(
             decoration: BoxDecoration(
               color: Color.fromARGB(255, 200, 200, 200),

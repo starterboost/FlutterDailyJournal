@@ -27,7 +27,7 @@ class AddPreviewPageState extends State<AddPreviewPage> {
       RenderRepaintBoundary boundary =
           _renderKey.currentContext.findRenderObject();
       
-      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+      ui.Image image = await boundary.toImage(pixelRatio: 1.0);
       
       ByteData byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
@@ -43,10 +43,13 @@ class AddPreviewPageState extends State<AddPreviewPage> {
 
   void _onSubmitToModel( {AppModel model} ) async {
       Uint8List image = await _captureImage();
-      File fileImage = await model.saveImage( image );
+      JournalEntry entry = model.getEntryForToday();
+      //create a new entry if required
+      if( entry == null ){
+        entry = await model.createEntryForToday();
+      }
 
-      model.getEntryForToday(createIfNull:true).images.add( fileImage.path );
-      model.saveEntryForToday();
+      await model.addEntryImage( entry, image );
   }
 
   @override
@@ -90,10 +93,13 @@ class AddPreviewPageState extends State<AddPreviewPage> {
 
                 //now start on this task
                 Uint8List image = await _captureImage();
-                File fileImage = await model.saveImage( image );
+                JournalEntry entry = model.getEntryForToday();
+                //create a new entry if required
+                if( entry == null ){
+                  entry = await model.createEntryForToday();
+                }
 
-                model.getEntryForToday(createIfNull:true).images.add( fileImage.path );
-                model.saveEntryForToday();
+                await model.addEntryImage( entry, image );
               }),
         );
       },

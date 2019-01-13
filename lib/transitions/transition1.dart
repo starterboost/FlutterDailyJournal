@@ -7,12 +7,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'dart:typed_data';
-
+import 'package:scoped_model/scoped_model.dart';
+import '../model/app-model.dart';
 
 class Transition1 extends StatefulWidget {
   Transition1({Key key, @required this.image1, @required this.image2}):super(key:key);
-  final String image1;
-  final String image2;
+  final int image1;
+  final int image2;
 
   _Transition1State createState() => _Transition1State();
 }
@@ -24,8 +25,8 @@ class _Transition1State extends State<Transition1> with SingleTickerProviderStat
 
   ui.Image _image1;
   ui.Image _image2;
-  String image1;
-  String image2;
+  int image1;
+  int image2;
 
   @override
   void initState(){
@@ -50,12 +51,12 @@ class _Transition1State extends State<Transition1> with SingleTickerProviderStat
   Future<void> _loadAssets() async {
     if( image1 != widget.image1 ){
       image1 = widget.image1;
-      _image1 = await _imageFromFilePath( widget.image1 );
+      _image1 = await _imageFromDb( widget.image1 );
     }
 
     if( image2 != widget.image2 ){
       image2 = widget.image2;
-      _image2 = await _imageFromFilePath( widget.image2 );
+      _image2 = await _imageFromDb( widget.image2 );
     }
 
     setState((){});
@@ -71,6 +72,12 @@ class _Transition1State extends State<Transition1> with SingleTickerProviderStat
   Future<ui.Image> _imageFromFilePath( String path ) async {
     File file = File( path );
     List<dynamic> data = await file.readAsBytes();
+    return _imageFromMemory( data );
+  }
+  
+  Future<ui.Image> _imageFromDb( int id ) async {
+    AppModel model = ScopedModel.of<AppModel>(context);
+    Uint8List data = await model.loadImage( id );
     return _imageFromMemory( data );
   }
   

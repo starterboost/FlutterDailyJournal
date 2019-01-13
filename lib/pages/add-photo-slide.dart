@@ -37,7 +37,6 @@ class AddPhotoSlidePageState extends State<AddPhotoSlidePage> {
               return true;
             }),
             builder: (context, snapshot) {
-              print("builder: ${snapshot.hasData}");
               if( !snapshot.hasData ){
                 return Center( child: CircularProgressIndicator() );
               }else{

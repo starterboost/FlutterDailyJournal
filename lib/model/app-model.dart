@@ -10,20 +10,28 @@ import 'package:path/path.dart' as path;
 import 'package:scoped_model/scoped_model.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+import 'package:sqflite/sqflite.dart';
+
 String _dateToName( DateTime date ){
     return '${date.year}-${date.month}-${date.day}.json';
 }
 
+const String TABLE_JOURNAL_ENTRIES = "JournalEntries";
+const String TABLE_IMAGES = "Images";
+
+const String COLUMN_ID = "id";
+const String COLUMN_IMAGE = "image";
+const String COLUMN_JOURNAL_ID = "journalId";
+const String COLUMN_DATE = "date";
 class AppModel extends Model {
-  Storage _storage;
-  Storage _storageImages;
 
+  Database _db;
+  
   List<JournalEntry> _items = [];
-
   get items => _items;
 
-  List<Uint8List> images = [];
   Slide _preview;
+
 
   Slide get preview => _preview;
 
@@ -33,130 +41,138 @@ class AppModel extends Model {
   }
 
   Future<void> init() async{
-    _storage = new Storage("journal");
-    _storage.init();
 
-    _storageImages = new Storage("journalimages");
-    _storageImages.init();
+    var databasesPath = await getDatabasesPath();
+    String dbPath = path.join(databasesPath, 'demo.db');
 
-    print("init Model");
-    //load all data
-    Stream<FileSystemEntity> contentStream = await _storage.listContents();
-    //listen for the contents
-    contentStream.listen( (FileSystemEntity file) async {
-      print("init Model file ${file.path}");
-      String fileName = path.basename( file.path );
-      print( fileName );
-      try{
-        Map<String, dynamic> data = await _storage.readFileAsJSON(fileName);
-        if( !data.containsKey('date') ){
-          throw 'Date missing from data';
-        }
+    // Delete the database
+    await deleteDatabase(dbPath);
 
-        //got to here - all must be fine
-        print('fromJSON: $data');
-        addEntry( JournalEntry.fromJson( data ) );
-      }catch(err){
-        print('Error opening the file: ${err}');
-        //data malformed - delete (for now)
-        //_storage.deleteFile( fileName );
+    File file = File( dbPath );
+    bool fileExists = await file.exists();
+    int fileSize = fileExists ? await file.length() : 0;
+
+    print("init Model: $dbPath $fileSize");
+
+    _db = await openDatabase(dbPath, version: 1,
+        onCreate: (Database db, int version) async {
+
+      print("created db");
+      // When creating the db, create the table
+      await db.execute(
+          'CREATE TABLE $TABLE_JOURNAL_ENTRIES ($COLUMN_ID INTEGER PRIMARY KEY, $COLUMN_DATE TEXT)');
+      await db.execute(
+          'CREATE TABLE $TABLE_IMAGES ($COLUMN_ID INTEGER PRIMARY KEY, $COLUMN_IMAGE BLOB, $COLUMN_JOURNAL_ID INTEGER)');
+
+      
+      List<Map> dbJournalEntries = await db.rawQuery('SELECT * FROM $TABLE_JOURNAL_ENTRIES');
+      print("$TABLE_JOURNAL_ENTRIES: ${dbJournalEntries.length}");
+      List<Map> dbImages = await db.rawQuery('SELECT $COLUMN_ID, $COLUMN_JOURNAL_ID FROM $TABLE_IMAGES');
+
+      print("$TABLE_IMAGES: ${dbImages.length}");
+
+      //populate the items from the dbJournalEntries
+      for( Map<String, dynamic> dbJournalEntry in dbJournalEntries ){
+        JournalEntry item = JournalEntry.fromJson( dbJournalEntry );
+        //get all the image ids
+        dbImages.forEach(( dbImage ){
+          print("${dbImage[COLUMN_JOURNAL_ID]} == ${item.id}");
+          if( dbImage[COLUMN_JOURNAL_ID] == item.id ){
+            item.images.add( dbImage[COLUMN_ID] );
+          }
+        });
+
+        _items.add( item );
+        //get all the images
       }
+
+      notifyListeners();
     });
+
   }
 
-  Future<File> saveImage( List<dynamic> data ){
-    DateTime dateNow = DateTime.now();
-    String name = dateNow.millisecondsSinceEpoch.toString();
-    return _storageImages.writeFileAsBytes("$name", data );
+  Future<int> addEntryImage( JournalEntry entry, List<dynamic> data ) async {
+    //return the id of the image saved
+    int imageId = await _db.transaction((txn) async {
+      return await txn.rawInsert(
+          'INSERT INTO $TABLE_IMAGES($COLUMN_JOURNAL_ID,$COLUMN_IMAGE) VALUES(?,?)', [entry.id, data]);
+    });
+
+    entry.images.add( imageId );
+
+    notifyListeners();
   }
 
-  void addEntry( JournalEntry entry ) {
+  Future <Uint8List> loadImage( int id ) async{
+    List<Map<String, dynamic>> results = await _db.rawQuery('SELECT $COLUMN_IMAGE FROM $TABLE_IMAGES WHERE id=?',[id]);
+
+    if( results.length > 0 ){
+      Map<String, dynamic> result = results[0];
+      return result["image"] as Uint8List;
+    }
+
+    return null;
+  }
+
+
+  Future<void> addEntry( JournalEntry entry ) async {
     // First, increment the counter
     _items.add( entry );
-    print('Added entry');
+    entry.id = await _db.insert( TABLE_JOURNAL_ENTRIES, entry.toJson() );
     // Then notify all the listeners.
     notifyListeners();
   }
   
-  void saveEntry( JournalEntry entry ) {
-    print("saveEntry");
-    // First, increment the counter
-    if( _items.contains( entry ) ){
-      _storage.writeFileAsJson( _dateToName( entry.date ), entry );
-      print("savedEntry");
-    }
-    // Then notify all the listeners.
-    notifyListeners();
-  }
-
-  void saveEntryForToday(){
-    JournalEntry entry = getEntryForToday();
-    if( entry != null ){
-      saveEntry( entry );
-    }
-  }
-
   JournalEntry getEntryById( int id ){
     return _items.firstWhere((item){
       return item.id == id ? true : false;
     });
   }
   
-  JournalEntry getEntryForToday( {bool createIfNull = false} ){
+  JournalEntry getEntryForToday(){
     DateFormat dateFormat = DateFormat.yMd();
     DateTime dateNow = DateTime.now();
+    String strToday = dateFormat.format( dateNow );
 
     try{
       return _items.firstWhere((item){
-        return dateFormat.format( dateNow ) == dateFormat.format( item.date ) ? true : false;
+        return strToday == dateFormat.format( item.date ) ? true : false;
       });
     }catch(err){
 
     }
 
-    return createIfNull ? createEntryForToday() : null;
+    return null;
   }
 
-  JournalEntry createEntryForToday(){
-    JournalEntry journal = JournalEntry( DateTime.now() );
-    addEntry( journal );
+  Future<JournalEntry> createEntryForToday() async {
+    JournalEntry journal = JournalEntry( date: DateTime.now() );
+    await addEntry( journal );
     return journal;
   }
 }
 
 
 class JournalEntry{
-  static int _id = 0;
-
-  JournalEntry( this.date, {this.images} ){
+  
+  JournalEntry( {this.id, this.date, this.images} ){
     if( this.images == null ){
       this.images = [];
     }
   }
 
-  final int id = _id++;
-  List<String> images;
+  int id = -1;
+  List<int> images;
   final DateTime date;
 
   JournalEntry.fromJson(Map<String, dynamic> json):
-    date = DateTime.parse(json['date']),
-    images = []
-  {
-      print("JournalEntry.fromJson ${json['images'].length}");
-      for( var image in json['images'] ){
-        if( image is String ){
-          File fileImage = File( image );
-          print("$image ${fileImage.existsSync()}");
-          if( fileImage.existsSync() ){
-            images.add( image );
-          }
-        }
-      }
-  }
+    id = json[COLUMN_ID],
+    date = DateTime.parse(json[COLUMN_DATE]),
+    images = [];
 
   Map<String, dynamic> toJson() =>
   {
-    'images': images,
+    //'images': images,
     'date': date.toString(),
   };
 }
