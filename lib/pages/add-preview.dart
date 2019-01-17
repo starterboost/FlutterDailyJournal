@@ -5,12 +5,9 @@ import 'package:scoped_model/scoped_model.dart';
 
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'dart:io';
 
 import '../elements/btn-round-icon.dart';
-import '../elements/btn-cancel.dart';
 import '../model/app-model.dart';
-import 'package:path_provider/path_provider.dart';
 
 class AddPreviewPage extends StatefulWidget {
   @override

@@ -12,6 +12,42 @@ import 'package:photo_manager/photo_manager.dart';
 
 import 'package:sqflite/sqflite.dart';
 
+
+class AppModelContainer extends StatefulWidget {
+
+  AppModelContainer({this.child});
+  final Widget child;
+
+  @override
+  AppModelContainerState createState() {
+    return new AppModelContainerState();
+  }
+}
+
+class AppModelContainerState extends State<AppModelContainer> {
+  AppModel _model;
+
+  @override
+    void initState() {
+      super.initState();
+      _initModel();
+    }
+
+  Future<void> _initModel() async {
+    _model = new AppModel();
+    _model.init();
+    setState((){});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new ScopedModel<AppModel>(
+      model: _model,
+      child: widget.child
+    );
+  }
+}
+
 String _dateToName( DateTime date ){
     return '${date.year}-${date.month}-${date.day}.json';
 }
@@ -23,6 +59,7 @@ const String COLUMN_ID = "id";
 const String COLUMN_IMAGE = "image";
 const String COLUMN_JOURNAL_ID = "journalId";
 const String COLUMN_DATE = "date";
+
 class AppModel extends Model {
 
   Database _db;

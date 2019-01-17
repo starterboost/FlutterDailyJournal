@@ -22,6 +22,15 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
   ScrollController _controller;
   Timer _scrollingEnabled;
 
+  static String _toDateString( int date ){
+    String str = date.toString();
+    //add any prefix as required
+    while( str.length < 2 ){
+      str = "0$str";
+    }
+    return str;
+  }
+
   @override
   void initState() {
     //define the controller
@@ -82,7 +91,7 @@ class AddImageSlidePageState extends State<AddImageSlidePage> {
       DateTime now = DateTime.now();
       //iOS puts all images in a temp directory which means they are all fresh and the modified date is useless
       DateTime today =
-          DateTime.parse("${now.year}-0${now.month}-0${now.day} 00:00:00Z");
+          DateTime.parse("${now.year}-${AddImageSlidePageState._toDateString(now.month)}-${AddImageSlidePageState._toDateString(now.day)} 00:00:00Z");
 
       //print('StepA');
       for (AssetPathEntity photoGroup in photoGroups) {
